@@ -14,7 +14,7 @@ const Home: NextPage = () => {
       setFile(e.target.files[0]);
     }
   };
-//comment
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file) {
@@ -54,14 +54,14 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>PDF Text Extractor</title>
+        <title>📤  PDF Text Extractor</title>
         <meta name="description" content="Extract text from PDF files" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>PDF Text Extractor</h1>
-        <p className={styles.description}>Upload a PDF file to extract its text</p>
+        <h1 className={styles.title}>📤 PDF Text Extractor</h1>
+        <p className={styles.description}>☁️ Upload a PDF file to extract its text</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <input

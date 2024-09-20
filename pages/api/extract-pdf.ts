@@ -17,7 +17,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const form = formidable();
 
   form.parse(req, async (err, fields, files) => {
-    // Add logging messages here
     console.log('Received fields:', fields);
     console.log('Received files:', files);
 
@@ -35,27 +34,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('File received:', file.originalFilename, 'Size:', file.size, 'bytes');
 
     try {
-  const buffer = fs.readFileSync(file.filepath);
-  console.log('File read successfully, parsing PDF...');
-  const data = await pdf(buffer);
-  console.log('PDF parsed successfully, extracted text length:', data.text.length);
-  res.status(200).json({ success: true, text: data.text });
-} catch (error) {
-  console.error('Error parsing PDF:', error);
-  res.status(500).json({ 
-    success: false, 
-    error: 'Error parsing PDF: ' + (error instanceof Error ? error.message : String(error))
-  });
-} finally {
-  // Clean up the temporary file
-  if (file.filepath) {
-    try {
-      fs.unlinkSync(file.filepath);
-      console.log('Temporary file deleted:', file.filepath);
-    } catch (unlinkError) {
-      console.error('Error deleting temporary file:', unlinkError);
+      const buffer = fs.readFileSync(file.filepath);
+      console.log('File read successfully, parsing PDF...');
+      const data = await pdf(buffer);
+      console.log('PDF parsed successfully, extracted text length:', data.text.length);
+
+      // Insert page markers
+      let modifiedText = '';
+      for (let i = 0; i < data.numpages; i++) {
+        const pageText = data.text.split('\n').slice(i * data.numpages, (i + 1) * data.numpages).join('\n');
+        modifiedText += `🅿️ Start of Page ${i + 1} of ${data.numpages}\n\n${pageText}\n\n`;
+      }
+
+      res.status(200).json({ success: true, text: modifiedText });
+    } catch (error) {
+      console.error('Error parsing PDF:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Error parsing PDF: ' + (error instanceof Error ? error.message : String(error))
+      });
+    } finally {
+      // Clean up the temporary file
+      if (file.filepath) {
+        try {
+          fs.unlinkSync(file.filepath);
+          console.log('Temporary file deleted:', file.filepath);
+        } catch (unlinkError) {
+          console.error('Error deleting temporary file:', unlinkError);
+        }
+      }
     }
-  }
-}
   });
 }
