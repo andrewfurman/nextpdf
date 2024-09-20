@@ -14,7 +14,7 @@ const Home: NextPage = () => {
       setFile(e.target.files[0]);
     }
   };
-
+//comment
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file) {
@@ -30,20 +30,22 @@ const Home: NextPage = () => {
     formData.append('pdf', file);
 
     try {
+      const formData = new FormData();
+      formData.append('pdf', file);
+
       const response = await fetch('/api/extract-pdf', {
         method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
-
       if (!data.success) {
-        throw new Error(data.error);
+        throw new Error(data.error || 'Error extracting text from PDF');
       }
 
       setExtractedText(data.text);
     } catch (err) {
-      setError(err.message || 'Error extracting text from PDF. Please try again.');
+      setError(err instanceof Error ? err.message : 'Error extracting text from PDF. Please try again.');
     } finally {
       setIsLoading(false);
     }

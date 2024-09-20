@@ -35,27 +35,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('File received:', file.originalFilename, 'Size:', file.size, 'bytes');
 
     try {
-      const buffer = fs.readFileSync(file.filepath);
-      console.log('File read successfully, parsing PDF...');
-      const data = await pdf(buffer);
-      console.log('PDF parsed successfully, extracted text length:', data.text.length);
-      res.status(200).json({ success: true, text: data.text });
-    } catch (error) {
-      console.error('Error parsing PDF:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: 'Error parsing PDF: ' + error.message 
-      });
-    } finally {
-      // Clean up the temporary file
-      if (file.filepath) {
-        try {
-          fs.unlinkSync(file.filepath);
-          console.log('Temporary file deleted:', file.filepath);
-        } catch (unlinkError) {
-          console.error('Error deleting temporary file:', unlinkError);
-        }
-      }
+  const buffer = fs.readFileSync(file.filepath);
+  console.log('File read successfully, parsing PDF...');
+  const data = await pdf(buffer);
+  console.log('PDF parsed successfully, extracted text length:', data.text.length);
+  res.status(200).json({ success: true, text: data.text });
+} catch (error) {
+  console.error('Error parsing PDF:', error);
+  res.status(500).json({ 
+    success: false, 
+    error: 'Error parsing PDF: ' + (error instanceof Error ? error.message : String(error))
+  });
+} finally {
+  // Clean up the temporary file
+  if (file.filepath) {
+    try {
+      fs.unlinkSync(file.filepath);
+      console.log('Temporary file deleted:', file.filepath);
+    } catch (unlinkError) {
+      console.error('Error deleting temporary file:', unlinkError);
     }
+  }
+}
   });
 }
